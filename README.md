@@ -1,6 +1,10 @@
 # conversation-helper
 GUI implementation of a Transformer chatbot. Suggests amicable responses to messages from friends. 
 
+## Screenshot
+
+![alt text](media/Capture.PNG)
+
 ## Upcoming Release Improvements
 * Hyperparameter tuning via the GUI
 * Sentiment analysis for your message BEFORE you send it

@@ -111,7 +111,7 @@ def entry_point():
 
                 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-                if values['-MOOD-'][0] == mood_levels[1]:
+                if values['-MOOD-'][0] == mood_levels[2]:
                     gen_dict = {
                         "max_length": 2000,
                         "do_sample": True,
@@ -121,7 +121,7 @@ def entry_point():
                         "num_return_sequences": 10,
                         "pad_token_id": tokenizer.eos_token_id
                     }
-                if values['-MOOD-'][0] ==  mood_levels[2]:
+                if values['-MOOD-'][0] ==  mood_levels[1]:
                     gen_dict = {
                         "max_length": 2000,
                         "do_sample": True,
@@ -146,7 +146,7 @@ def entry_point():
 
                 n = ToastNotifier()
                 n.show_toast("Replies ready", "Now you know what to say.", duration=10,
-                             icon_path=r"C:\Users\musil\source\repos\conversation-helper\media\notice.ico")
+                             icon_path=r"media\notice.ico")
 
                 window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
