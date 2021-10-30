@@ -1,20 +1,27 @@
-import PySimpleGUI as sg
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from datasets import load_metric
 import numpy as np
 import notifypy
+QT = True
+if QT:
+    import PySimpleGUIQt as sg
+else:
+    import PySimpleGUI as sg
 
-metric = load_metric("accuracy")
-model_name = "microsoft/DialoGPT-large"
+text_list = [
+    "microsoft/DialoGPT-medium",
+    "microsoft/DialoGPT-large"
 
-try:
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-except:
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+]
 
-model = AutoModelForCausalLM.from_pretrained(model_name)
+mood_levels = [
+    "normal, reserved, friendly",
+    "spontaneous, random, assertive"
+]
+
+
 #model = AutoModelForSequenceClassification.from_pretrained(r"D:\GoogleDrive\Personal\Hobbies Fun and Interests\Programming\python\NLP\TinderChatBot\model_saves", num_labels=2)
 
 
@@ -64,28 +71,23 @@ def fine_tune():
     from transformers import TrainingArguments
 
 
-def call_and_response(window, text ,exchanges=1, chat_history_ids_list = None):
+def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, chat_history_ids_list = None):
     for step in range(exchanges):
         #text = input(">> Conversational Partner: ")
-        #window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
+        window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
         inputs_ids = tokenizer.encode(text+tokenizer.eos_token, return_tensors="pt")
         try:
-            #window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
+            window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
             bot_input_ids = torch.cat([chat_history_ids_list, inputs_ids], dim= -1) if step > 0 else inputs_ids
         except:
             continue
 
-        #window['-MLINE-'].update("\nGenerating model outputs...\n", append=True, autoscroll=True)
+        window['-MLINE-'].update("\nGenerating model outputs...\n", append=True, autoscroll=True)
 
         chat_history_ids_list = model.generate(
             bot_input_ids,
-            max_length = 2000,
-            do_sample=True,
-            top_p=0.95,
-            top_k=100,
-            temperature=0.8,
-            num_return_sequences=10,
-            pad_token_id = tokenizer.eos_token_id
+            **gen_dict
+
         )
         #print("Suggested responses to what they sent you: ")
 
@@ -93,8 +95,8 @@ def call_and_response(window, text ,exchanges=1, chat_history_ids_list = None):
 
     return chat_history_ids_list, bot_input_ids
 
-def magic_machine_learning_function(message, chat_history_ids_list, window):
-    chat_history_ids_list, bot_input_ids= call_and_response(window, message, exchanges=1, chat_history_ids_list=chat_history_ids_list)
+def magic_machine_learning_function(message, chat_history_ids_list, window, model, tokenizer, gen_dict):
+    chat_history_ids_list, bot_input_ids= call_and_response(gen_dict, tokenizer, model, window, message, exchanges=1, chat_history_ids_list=chat_history_ids_list)
     return chat_history_ids_list, bot_input_ids
 
 
@@ -104,7 +106,23 @@ def entry_point():
     layout = [
             [sg.Multiline(size=(110, 30), font='courier 10', background_color='black', text_color='white', key='-MLINE-')],
             [sg.T('Message> '), sg.Input(key='-IN-', focus=True, do_not_clear=False)],
-            [sg.Button('Input', bind_return_key=True), sg.Button('Cancel')]
+            [sg.Button('Input', bind_return_key=True), sg.Button('Cancel')],
+            [sg.Text('Select a Model:')],
+            [sg.Listbox(values=text_list,
+                     size=(400, 20 * len(text_list)) if QT else (15, len(text_list)),
+                     change_submits=True,
+                     bind_return_key=True,
+                     auto_size_text=True,
+                     default_values=text_list[0],
+                     key='_FLOATING_LISTBOX_', enable_events=True)],
+            [sg.Text('Select a mood:')],
+            [sg.Listbox(values=mood_levels,
+                    size=(400, 20 * len(mood_levels)) if QT else (15, len(mood_levels)),
+                    change_submits=True,
+                    bind_return_key=True,
+                    auto_size_text=True,
+                    default_values=mood_levels[0],
+                    key='-MOOD-', enable_events=True)],
               ]
     # Create the Window
     window = sg.Window('Conversation Helper', layout, finalize=True)
@@ -133,15 +151,45 @@ def entry_point():
     while True:
         event, values = window.read()
         try:
-            if event == 'Exit':
+            if event == 'Cancel':
                 # User closed the Window or hit the Cancel button
                 break
             elif event is None:
                 break
             elif event == 'Input':
+
+
+                model_name = values['_FLOATING_LISTBOX_'][0]
+
+
+                tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+                if values['-MOOD-'][0] == "normal, reserved, friendly":
+                    gen_dict = {
+                        "max_length": 2000,
+                        "do_sample": True,
+                        "top_p": 0.95,
+                        "top_k": 100,
+                        "temperature": 0.7,
+                        "num_return_sequences": 10,
+                        "pad_token_id": tokenizer.eos_token_id
+                    }
+                if values['-MOOD-'][0] == "spontaneous, random, assertive":
+                    gen_dict = {
+                        "max_length": 2000,
+                        "do_sample": True,
+                        "top_p": 0.95,
+                        "top_k": 100,
+                        "temperature": 1,
+                        "num_return_sequences": 10,
+                        "pad_token_id": tokenizer.eos_token_id
+                    }
+
+                model = AutoModelForCausalLM.from_pretrained(model_name)
+
                 window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\nRunning magical machine learning box... \n", append=True, autoscroll=True)
-                chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list, window)
+                chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list, window, model,tokenizer, gen_dict)
                 window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True, autoscroll=True)
                 for i, option in enumerate(chat_history_ids_list):
                     output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
@@ -151,10 +199,12 @@ def entry_point():
                 window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
-                choice_index = int(values['-IN-'])
-                chat_history_ids_list = torch.unsqueeze(chat_history_ids_list[choice_index], dim=0)
+                choice_index = 1
+                #chat_history_ids_list = torch.unsqueeze(chat_history_ids_list[choice_index], dim=0)
+                chat_history_ids_list = tokenizer.encode(values['-IN-']+tokenizer.eos_token, return_tensors="pt")
 
-        except:
+        except Exception as e:
+            sg.popup_error(f"Oh no an exception occurred: {e}")
             continue
 
     window.close()
