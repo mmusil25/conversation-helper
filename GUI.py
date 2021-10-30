@@ -22,8 +22,6 @@ mood_levels = [
 ]
 
 
-#model = AutoModelForSequenceClassification.from_pretrained(r"D:\GoogleDrive\Personal\Hobbies Fun and Interests\Programming\python\NLP\TinderChatBot\model_saves", num_labels=2)
-
 
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
