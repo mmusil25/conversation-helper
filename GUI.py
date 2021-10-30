@@ -67,15 +67,15 @@ def fine_tune():
 def call_and_response(window, text ,exchanges=1, chat_history_ids_list = None):
     for step in range(exchanges):
         #text = input(">> Conversational Partner: ")
-        window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
+        #window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
         inputs_ids = tokenizer.encode(text+tokenizer.eos_token, return_tensors="pt")
         try:
-            window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
+            #window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
             bot_input_ids = torch.cat([chat_history_ids_list, inputs_ids], dim= -1) if step > 0 else inputs_ids
         except:
             continue
 
-        window['-MLINE-'].update("\nGenerating model outputs...\n", append=True, autoscroll=True)
+        #window['-MLINE-'].update("\nGenerating model outputs...\n", append=True, autoscroll=True)
 
         chat_history_ids_list = model.generate(
             bot_input_ids,
@@ -135,6 +135,8 @@ def entry_point():
         try:
             if event == 'Exit':
                 # User closed the Window or hit the Cancel button
+                break
+            elif event is None:
                 break
             elif event == 'Input':
                 window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
