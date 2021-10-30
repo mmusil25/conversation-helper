@@ -16,62 +16,19 @@ text_list = [
 
 ]
 
-mood_levels = [
+moods = [
     "normal, reserved, friendly",
-    "spontaneous, random, assertive"
+    "spontaneous, random, assertive",
 ]
 
-
-
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=-1)
-    return metric.compute(predictions=predictions, references=labels)
-
-def tokenize_function(examples):
-    return tokenizer(examples["text"],padding="max_length", truncation=True)
-
-def fine_tune():
-    raw_datasets = load_dataset("imdb")
-    print(f"IMDB dataset columns: {raw_datasets.column_names}")
-
-    #inputs = tokenizer(sentences, padding="max_length", truncation=True)
-    tokenized_datasets = raw_datasets.map(tokenize_function, batched=True)
-
-    small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-    small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
-    full_train_dataset = tokenized_datasets["train"]
-    full_eval_dataset = tokenized_datasets["test"]
-
-    from transformers import TrainingArguments
-    training_args = TrainingArguments("test_trainer")
-
-    from transformers import Trainer
-    #trainer= Trainer(model=model, args=training_args, train_dataset=small_train_dataset, eval_dataset=small_eval_dataset)
-
-    #trainer.train()
-    training_args = TrainingArguments("test_trainer", evaluation_strategy="epoch")
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=small_train_dataset,
-        eval_dataset=small_eval_dataset,
-        compute_metrics=compute_metrics,
-    )
-    trainer.evaluate()
-    import os
-    trainer.save_model(r"D:\GoogleDrive\Personal\Hobbies Fun and Interests\Programming\python\NLP\TinderChatBot\model_saves")
-    print("Model saved")
-    notice = notifypy.Notify()
-    notice.title = "Training Done"
-    notice.message = "The model is done training"
-    notice.send()
-    from transformers import TrainingArguments
+mood_levels = {
+    1: "normal, reserved, friendly",
+    2: "spontaneous, random, assertive",
+}
 
 
 def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, chat_history_ids_list = None):
     for step in range(exchanges):
-        #text = input(">> Conversational Partner: ")
         window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
         inputs_ids = tokenizer.encode(text+tokenizer.eos_token, return_tensors="pt")
         try:
@@ -87,10 +44,6 @@ def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, cha
             **gen_dict
 
         )
-        #print("Suggested responses to what they sent you: ")
-
-            #print(f"{i}: {output}")
-
     return chat_history_ids_list, bot_input_ids
 
 def magic_machine_learning_function(message, chat_history_ids_list, window, model, tokenizer, gen_dict):
@@ -99,7 +52,7 @@ def magic_machine_learning_function(message, chat_history_ids_list, window, mode
 
 
 def entry_point():
-    import torch
+
     # Create some elements
     layout = [
             [sg.Multiline(size=(110, 30), font='courier 10', background_color='black', text_color='white', key='-MLINE-')],
@@ -114,19 +67,18 @@ def entry_point():
                      default_values=text_list[0],
                      key='_FLOATING_LISTBOX_', enable_events=True)],
             [sg.Text('Select a mood:')],
-            [sg.Listbox(values=mood_levels,
-                    size=(400, 20 * len(mood_levels)) if QT else (15, len(mood_levels)),
+            [sg.Listbox(values=moods,
+                    size=(400, 20 * len(moods)) if QT else (15, len(moods)),
                     change_submits=True,
                     bind_return_key=True,
                     auto_size_text=True,
-                    default_values=mood_levels[0],
+                    default_values="normal, reserved, friendly",
                     key='-MOOD-', enable_events=True)],
               ]
     # Create the Window
     window = sg.Window('Conversation Helper', layout, finalize=True)
     # Create the event loop
     chat_history_ids_list = []
-    bot_input_ids = []
     version_string = "0.1"
     welcome_string = f"\n\n" \
                      f" ***************************************\n" \
@@ -143,7 +95,6 @@ def entry_point():
                      "reply to receive a new batch of contextual responses based on previous messages. \n"\
                      "\n(Note: This is a very large transformer and may appear to freeze. Please be patient.) \n" \
                       "\n Try it! Enter their message in the white prompt box below.\n\n\n"
-    #window.read()
     window['-MLINE-'].update(welcome_string)
 
     while True:
@@ -162,7 +113,7 @@ def entry_point():
 
                 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-                if values['-MOOD-'][0] == "normal, reserved, friendly":
+                if values['-MOOD-'][0] == mood_levels[1]:
                     gen_dict = {
                         "max_length": 2000,
                         "do_sample": True,
@@ -172,7 +123,7 @@ def entry_point():
                         "num_return_sequences": 10,
                         "pad_token_id": tokenizer.eos_token_id
                     }
-                if values['-MOOD-'][0] == "spontaneous, random, assertive":
+                if values['-MOOD-'][0] ==  mood_levels[2]:
                     gen_dict = {
                         "max_length": 2000,
                         "do_sample": True,
@@ -196,9 +147,6 @@ def entry_point():
 
                 window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
-
-                choice_index = 1
-                #chat_history_ids_list = torch.unsqueeze(chat_history_ids_list[choice_index], dim=0)
                 chat_history_ids_list = tokenizer.encode(values['-IN-']+tokenizer.eos_token, return_tensors="pt")
 
         except Exception as e:
