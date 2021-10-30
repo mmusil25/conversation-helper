@@ -1,9 +1,7 @@
-from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-from datasets import load_metric
-import numpy as np
 import notifypy
+
 QT = True
 if QT:
     import PySimpleGUIQt as sg
@@ -84,11 +82,9 @@ def entry_point():
                      f" ***************************************\n" \
                      f" Conversation Helper v" + version_string + " \n" \
                      f" ***************************************\n" \
-                     f"\n Have you ever had trouble knowing what to reply? " \
                      f"Do you wish you always knew what to say? Enter the Conversation Helper! This program uses GPT to suggest " \
                      f"responses in conversations. By entering further replies, your answers will improve as the conversation flows. " \
-                     f"These suggestions are not meant to substitute empathy and are more of a starting point when " \
-                     f"you can't think of what to say :) Made with <3 - https://github.com/mmusil25/conversation-helper" \
+                     f"Made with <3 - https://github.com/mmusil25/conversation-helper" \
                      f"\n\n\n" \
                      f" Enter the message from your conversation partner"\
                      " to receive suggested replies. Once you've chosen a reply or used your own, have sent the reply, and have received a response, Enter their " \
