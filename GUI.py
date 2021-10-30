@@ -1,12 +1,6 @@
 import PySimpleGUI as sg
-from flask import Flask
-app = Flask(__name__)
-
-#https://huggingface.co/transformers/training.html
-
-import transformers
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModelForSequenceClassification
+from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from datasets import load_metric
 import numpy as np
@@ -14,7 +8,7 @@ import notifypy
 
 metric = load_metric("accuracy")
 model_name = "microsoft/DialoGPT-large"
-#tokenizer = AutoTokenizer.from_pretrained(model_name)
+
 try:
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 except:
@@ -22,7 +16,6 @@ except:
 
 model = AutoModelForCausalLM.from_pretrained(model_name)
 #model = AutoModelForSequenceClassification.from_pretrained(r"D:\GoogleDrive\Personal\Hobbies Fun and Interests\Programming\python\NLP\TinderChatBot\model_saves", num_labels=2)
-
 
 
 def compute_metrics(eval_pred):
@@ -155,9 +148,6 @@ def entry_point():
 
         except:
             event, values = window.read()
-
-
-
     window.close()
 
 if __name__ == '__main__':
