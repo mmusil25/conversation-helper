@@ -1,0 +1,6 @@
+/build/
+/dist/
+/chat_bot_records.txt
+/gui.spec
+/NLPlib.py
+/venvDir/
