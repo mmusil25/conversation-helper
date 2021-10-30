@@ -31,7 +31,7 @@ def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, cha
         window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
         inputs_ids = tokenizer.encode(text+tokenizer.eos_token, return_tensors="pt")
         try:
-            window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
+            window['-MLINE-'].update("\nBuilding conversation history...\n", append=True, autoscroll=True)
             bot_input_ids = torch.cat([chat_history_ids_list, inputs_ids], dim= -1) if step > 0 else inputs_ids
         except:
             continue

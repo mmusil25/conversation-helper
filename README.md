@@ -3,7 +3,7 @@ GUI implementation of a Transformer chatbot. Suggests amicable responses to mess
 
 ## Screenshot
 
-![alt text](media/Capture.PNG)
+![alt text](media/Chocolate.PNG)
 
 ## Upcoming Release Improvements
 * Hyperparameter tuning via the GUI
