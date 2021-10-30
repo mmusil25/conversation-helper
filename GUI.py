@@ -64,14 +64,18 @@ def fine_tune():
     from transformers import TrainingArguments
 
 
-def call_and_response(text ,exchanges=1, chat_history_ids_list = None):
+def call_and_response(window, text ,exchanges=1, chat_history_ids_list = None):
     for step in range(exchanges):
         #text = input(">> Conversational Partner: ")
+        window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
         inputs_ids = tokenizer.encode(text+tokenizer.eos_token, return_tensors="pt")
         try:
+            window['-MLINE-'].update("\nBuilding conversation using previous replies...\n", append=True, autoscroll=True)
             bot_input_ids = torch.cat([chat_history_ids_list, inputs_ids], dim= -1) if step > 0 else inputs_ids
         except:
             continue
+
+        window['-MLINE-'].update("\nGenerating model outputs...\n", append=True, autoscroll=True)
 
         chat_history_ids_list = model.generate(
             bot_input_ids,
@@ -89,8 +93,8 @@ def call_and_response(text ,exchanges=1, chat_history_ids_list = None):
 
     return chat_history_ids_list, bot_input_ids
 
-def magic_machine_learning_function(message, chat_history_ids_list):
-    chat_history_ids_list, bot_input_ids= call_and_response(message, exchanges=1, chat_history_ids_list=chat_history_ids_list)
+def magic_machine_learning_function(message, chat_history_ids_list, window):
+    chat_history_ids_list, bot_input_ids= call_and_response(window, message, exchanges=1, chat_history_ids_list=chat_history_ids_list)
     return chat_history_ids_list, bot_input_ids
 
 
@@ -133,14 +137,15 @@ def entry_point():
                 break
             elif event == 'Input':
                 window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
-                chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list)
-                window['-MLINE-'].update("\nTry saying one of the following.\n", append=True, autoscroll=True)
+                window['-MLINE-'].update("\nRunning magical machine learning box... \n", append=True, autoscroll=True)
+                chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list, window)
+                window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True, autoscroll=True)
                 for i, option in enumerate(chat_history_ids_list):
                     output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
                     window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
-                    window['-MLINE-'].update("\n\n\n", append=True, autoscroll=True)
+                    window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
-                window['-MLINE-'].update(f"\nEnter their reply\n", append=True, autoscroll=True)
+                window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
                 choice_index = int(values['-IN-'])
