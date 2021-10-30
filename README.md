@@ -1,6 +1,11 @@
 # conversation-helper
 GUI implementation of a Transformer chatbot. Suggests amicable responses to messages from friends. 
 
+## Upcoming Release Improvements
+* Hyperparameter tuning via the GUI
+* Sentiment analysis for your message BEFORE you send it
+* Bayesian prediction of how your message will make them feel 
+
 ## usage
 
 **Note**: This is a very large transformer and may appear to freeze. Please be patient. 
