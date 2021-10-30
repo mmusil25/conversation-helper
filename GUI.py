@@ -1,6 +1,6 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-import notifypy
+from win10toast import ToastNotifier
 
 QT = True
 if QT:
@@ -72,6 +72,7 @@ def entry_point():
                     auto_size_text=True,
                     default_values="normal, reserved, friendly",
                     key='-MOOD-', enable_events=True)],
+
               ]
     # Create the Window
     window = sg.Window('Conversation Helper', layout, finalize=True)
@@ -140,6 +141,11 @@ def entry_point():
                     output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
                     window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
                     window['-MLINE-'].update("\n", append=True, autoscroll=True)
+
+
+                n = ToastNotifier()
+                n.show_toast("Replies ready", "Now you know what to say.", duration=10,
+                             icon_path=r"C:\Users\musil\source\repos\conversation-helper\media\notice.ico")
 
                 window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
