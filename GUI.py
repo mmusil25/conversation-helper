@@ -83,7 +83,7 @@ def call_and_response(window, text ,exchanges=1, chat_history_ids_list = None):
             do_sample=True,
             top_p=0.95,
             top_k=100,
-            temperature=1,
+            temperature=0.8,
             num_return_sequences=10,
             pad_token_id = tokenizer.eos_token_id
         )
@@ -125,12 +125,13 @@ def entry_point():
                      f" Enter the message from your conversation partner"\
                      " to receive suggested replies. Once you've chosen a reply or used your own, have sent the reply, and have received a response, Enter their " \
                      "reply to receive a new batch of contextual responses based on previous messages. \n"\
-                     "\n Try it! Enter their message in the white prompt box below.\n\n\n"
+                     "\n(Note: This is a very large transformer and may appear to freeze. Please be patient.) \n" \
+                      "\n Try it! Enter their message in the white prompt box below.\n\n\n"
     #window.read()
     window['-MLINE-'].update(welcome_string)
 
     while True:
-
+        event, values = window.read()
         try:
             if event == 'Exit':
                 # User closed the Window or hit the Cancel button
@@ -152,7 +153,8 @@ def entry_point():
                 chat_history_ids_list = torch.unsqueeze(chat_history_ids_list[choice_index], dim=0)
 
         except:
-            event, values = window.read()
+            continue
+
     window.close()
 
 if __name__ == '__main__':
