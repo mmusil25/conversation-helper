@@ -14,6 +14,7 @@ text_list = [
 
 ]
 
+
 moods = [
     "normal, reserved, friendly",
     "spontaneous, random, assertive",
@@ -157,5 +158,5 @@ def entry_point():
 
     window.close()
 
-if __name__ == '__main__':
-    entry_point()
+
+entry_point()
