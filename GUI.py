@@ -93,7 +93,8 @@ def entry_point():
                      "reply to receive a new batch of contextual responses based on previous messages. \n"\
                      "\n(Note: This is a very large transformer and may appear to freeze. Please be patient.) \n" \
                       "\n Try it! Enter their message in the white prompt box below.\n\n\n"
-    window['-MLINE-'].update(welcome_string)
+    window['-MLINE-'].update(welcome_string, append=True, autoscroll=True)
+    window['-MLINE-'].update("", append=True, autoscroll=True)
 
     while True:
         event, values = window.read()
