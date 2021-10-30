@@ -86,7 +86,7 @@ def entry_point():
                      f" ***************************************\n" \
                      f"Do you wish you always knew what to say? Enter the Conversation Helper! This program uses GPT to suggest " \
                      f"responses in conversations. By entering further replies, your answers will improve as the conversation flows. " \
-                     f"Made with <3 - https://github.com/mmusil25/conversation-helper" \
+                     f"\n\nMade with <3 - https://github.com/mmusil25/conversation-helper" \
                      f"\n\n\n" \
                      f" Enter the message from your conversation partner"\
                      " to receive suggested replies. Once you've chosen a reply or used your own, have sent the reply, and have received a response, Enter their " \
