@@ -1,7 +1,7 @@
 # conversation-helper
 GUI implementation of a Transformer chatbot. Suggests amicable responses to messages from friends. 
 
-## Screenshot
+## Screenshots
 
 ![example 1](media/Chocolate.PNG)
 ![example 2](media/Weekend.PNG)
