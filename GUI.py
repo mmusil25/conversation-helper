@@ -138,9 +138,9 @@ def entry_point():
                 for i, option in enumerate(chat_history_ids_list):
                     output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
                     window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
-                    window['-MLINE-'].update("\n", append=True, autoscroll=True)
+                    window['-MLINE-'].update("\n\n\n", append=True, autoscroll=True)
 
-                window['-MLINE-'].update(f"Enter their reply", append=True, autoscroll=True)
+                window['-MLINE-'].update(f"\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
                 choice_index = int(values['-IN-'])
