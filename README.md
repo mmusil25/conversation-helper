@@ -26,7 +26,7 @@ contextual responses based on previous messages.
 
 **Note**: This is a very large transformer and may appear to freeze. Please be patient. 
 
-Made with <3 by [Mark](https://www.linkedin.com/in/mark-musil/)
+Made with <3 by [Mark](https://www.markmusil.com/)
 
 Install dependencies via requirements.txt
 
