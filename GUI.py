@@ -1,7 +1,7 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 from win10toast import ToastNotifier
-
+n = ToastNotifier()
 QT = True
 if QT:
     import PySimpleGUIQt as sg
@@ -10,7 +10,8 @@ else:
 
 text_list = [
     "microsoft/DialoGPT-medium",
-    "microsoft/DialoGPT-large"
+    "microsoft/DialoGPT-large",
+    "gpt2"
 ]
 
 moods = [
@@ -113,23 +114,25 @@ def entry_point():
 
                 if values['-MOOD-'][0] == mood_levels[2]:
                     gen_dict = {
-                        "max_length": 20000,
+                        "max_length": 200000,
                         "do_sample": True,
                         "top_p": 0.95,
                         "top_k": 100,
                         "temperature": 0.7,
                         "num_return_sequences": 10,
-                        "pad_token_id": tokenizer.eos_token_id
+                        "pad_token_id": tokenizer.eos_token_id,
+                        "num_beams": 2
                     }
                 if values['-MOOD-'][0] ==  mood_levels[1]:
                     gen_dict = {
-                        "max_length": 20000,
+                        "max_length": 200000,
                         "do_sample": True,
                         "top_p": 0.95,
                         "top_k": 100,
                         "temperature": 1,
                         "num_return_sequences": 10,
-                        "pad_token_id": tokenizer.eos_token_id
+                        "pad_token_id": tokenizer.eos_token_id,
+                        "num_beams": 2
                     }
 
                 model = AutoModelForCausalLM.from_pretrained(model_name)
@@ -146,7 +149,7 @@ def entry_point():
                 chat_history_ids_list = tokenizer.encode(values['-IN-'] + tokenizer.eos_token, return_tensors="pt")
                 window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                 window['-MLINE-'].update("\n", append=True, autoscroll=True)
-                n = ToastNotifier()
+
                 n.show_toast("Replies ready", "Now you know what to say.", duration=10,
                              icon_path=r"media\notice.ico")
 
