@@ -18,15 +18,15 @@ GUI implementation of a Transformer chatbot. Suggests amicable responses to mess
 ## usage
 
 Do you wish you always knew what to say? Enter the Conversation Helper! This program uses GPT to suggest responses in
-conversations. By entering further replies, your answers will improve as the conversation flows. 
-
-Made with <3 - https://github.com/mmusil25/conversation-helper
+conversations. By entering further replies, your answers will improve as the conversation flows.
 
 Enter the message from your conversation partner to receive suggested replies. Once you've chosen a reply or
 used your own, have sent the reply, and have received a response, Enter their reply to receive a new batch of 
 contextual responses based on previous messages.
 
 **Note**: This is a very large transformer and may appear to freeze. Please be patient. 
+
+Made with <3 by [Mark](https://www.linkedin.com/in/mark-musil/)
 
 Install dependencies via requirements.txt
 
@@ -45,4 +45,8 @@ For the experimental release (where I'm doing most of my hyperparameter tuning a
 ```
 python3 main.py
 ```
+## Credit to the following online resources
 
+[How to generate text: using different decoding methods for language generation with Transformers](https://huggingface.co/blog/how-to-generate)
+
+[Conversational AI Chatbot with Transformers in Python](https://www.thepythoncode.com/article/conversational-ai-chatbot-with-huggingface-transformers-in-python)
