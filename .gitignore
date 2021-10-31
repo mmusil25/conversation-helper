@@ -4,9 +4,10 @@
 /test_trainer/
 /.idea/
 /__pychache__/
-/buildozer
-/android
-/.github
+/buildozer/
+/android/
+/.github/
+/deploy/
 /chat_bot_records.txt
 /gui.spec
 /NLPlib.py
