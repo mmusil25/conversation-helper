@@ -3,7 +3,7 @@
 /venvDir/
 /test_trainer/
 /.idea/
-/__pychache__/
+/__pycache__
 /buildozer/
 /android/
 /.github/
