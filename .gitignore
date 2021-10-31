@@ -8,3 +8,10 @@
 /test_trainer/
 /.idea/
 /__pychache__/
+/buildozer.spec
+/buildozer
+/android
+/.github
+/kivy_calc.py
+/prompts.txt
+/prompts.py

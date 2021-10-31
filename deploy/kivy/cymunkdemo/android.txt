@@ -1,0 +1,3 @@
+title=Cymunk Demo
+author=Kivy team
+orientation=landscape

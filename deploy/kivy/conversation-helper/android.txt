@@ -1,0 +1,3 @@
+title=conversation-helper
+author=Mark Musil
+orientation=portrait

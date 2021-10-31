@@ -11,9 +11,7 @@ else:
 text_list = [
     "microsoft/DialoGPT-medium",
     "microsoft/DialoGPT-large"
-
 ]
-
 
 moods = [
     "normal, reserved, friendly",
@@ -46,7 +44,8 @@ def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, cha
     return chat_history_ids_list, bot_input_ids
 
 def magic_machine_learning_function(message, chat_history_ids_list, window, model, tokenizer, gen_dict):
-    chat_history_ids_list, bot_input_ids= call_and_response(gen_dict, tokenizer, model, window, message, exchanges=1, chat_history_ids_list=chat_history_ids_list)
+    chat_history_ids_list, bot_input_ids= call_and_response(gen_dict, tokenizer, model, window, message, exchanges=1,
+                                                            chat_history_ids_list=chat_history_ids_list)
     return chat_history_ids_list, bot_input_ids
 
 
@@ -114,7 +113,7 @@ def entry_point():
 
                 if values['-MOOD-'][0] == mood_levels[2]:
                     gen_dict = {
-                        "max_length": 2000,
+                        "max_length": 20000,
                         "do_sample": True,
                         "top_p": 0.95,
                         "top_k": 100,
@@ -124,7 +123,7 @@ def entry_point():
                     }
                 if values['-MOOD-'][0] ==  mood_levels[1]:
                     gen_dict = {
-                        "max_length": 2000,
+                        "max_length": 20000,
                         "do_sample": True,
                         "top_p": 0.95,
                         "top_k": 100,
@@ -144,14 +143,15 @@ def entry_point():
                     window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
                     window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
-
+                chat_history_ids_list = tokenizer.encode(values['-IN-'] + tokenizer.eos_token, return_tensors="pt")
+                window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
+                window['-MLINE-'].update("\n", append=True, autoscroll=True)
                 n = ToastNotifier()
                 n.show_toast("Replies ready", "Now you know what to say.", duration=10,
                              icon_path=r"media\notice.ico")
 
-                window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
-                window['-MLINE-'].update("\n", append=True, autoscroll=True)
-                chat_history_ids_list = tokenizer.encode(values['-IN-']+tokenizer.eos_token, return_tensors="pt")
+
+
 
         except Exception as e:
             sg.popup_error(f"Oh no an exception occurred: {e}")
@@ -160,4 +160,5 @@ def entry_point():
     window.close()
 
 
-entry_point()
+if __name__ == '__main__':
+    entry_point()
