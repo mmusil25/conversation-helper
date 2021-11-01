@@ -11,7 +11,6 @@ from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
-from transformers import pipeline
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.gridlayout import GridLayout
 
