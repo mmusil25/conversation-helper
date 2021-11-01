@@ -18,18 +18,7 @@ The most common use case for this tool (at this stage) is for early-relationship
 * Sentiment analysis for your drafted message
 * Bayesian prediction of how they will reply based on their previous replies 
 
-## usage
-
-Do you wish you always knew what to say? Enter the Conversation Helper! This program uses GPT to suggest responses in
-conversations. By entering further replies, your answers will improve as the conversation flows.
-
-Enter the message from your conversation partner to receive suggested replies. Once you've chosen a reply or
-used your own, have sent the reply, and have received a response, Enter their reply to receive a new batch of 
-contextual responses based on previous messages.
-
-**Note**: This is a very large transformer and may appear to freeze. Please be patient. 
-
-Made with <3 by [Mark](https://www.markmusil.com/)
+## Usage
 
 Install dependencies via requirements.txt
 
