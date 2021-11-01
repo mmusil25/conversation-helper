@@ -2,25 +2,31 @@
 # https://pysimplegui.readthedocs.io/en/latest/call%20reference/
 
 from model import Model
-import PySimpleGUIQt
+import PySimpleGUIQt as sg
+import win10toast as wt
 
 moods = [
     "normal, reserved, friendly",
     "spontaneous, random, assertive",
 ]
-
+text_list = [
+    "microsoft/DialoGPT-medium",
+    "microsoft/DialoGPT-large",
+    "gpt2"
+]
 mood_levels = {
     "normy": moods[0],
     "punk": moods[1],
 }
-
+version_string = "0.1"
+QT = True
 class View:
-    def __init__(self, view_choice, model):
+    def __init__(self, view_choice):
 
         self.frame_work = view_choice
         self.model = Model()
         self.reroll_text = "Hi :)"
-        self.notice_maker = ToastNotifier()
+        self.notice_maker = wt.ToastNotifier()
 
         if self.frame_work == "PySimpleGUIQt":
             self.layout = [
@@ -44,7 +50,7 @@ class View:
                     default_values="normal, reserved, friendly",
                     key='-MOOD-', enable_events=True)],
                 ]
-            self.window = sg.Window('Conversation Helper', layout, finalize=True)
+            self.window = sg.Window('Conversation Helper', self.layout, finalize=True)
             self.version_string = "0.1"
             self.welcome_string = f"\n\n" \
                      f" ***************************************\n" \
@@ -59,13 +65,38 @@ class View:
                      "reply to receive a new batch of contextual responses based on previous messages. \n"\
                      "\n(Note: This is a very large transformer and may appear to freeze. Please be patient.) \n" \
                       "\n Try it! Enter their message in the white prompt box below.\n\n\n"
-            self.window['-MLINE-'].update(welcome_string, append=True, autoscroll=True)
+            self.window['-MLINE-'].update(self.welcome_string, append=True, autoscroll=True)
             self
 
-    def PySimpleGUI_main_loop(self, ):
+    def mood_selector(self, choice):
+        if choice == mood_levels[2]:
+            gen_dict = {
+                "max_length": 200000,
+                "do_sample": True,
+                "top_p": 0.95,
+                "top_k": 100,
+                "temperature": 0.7,
+                "num_return_sequences": 10,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "num_beams": 2
+            }
+        elif choice ==  mood_levels[1]:
+            gen_dict = {
+                "max_length": 200000,
+                "do_sample": True,
+                "top_p": 0.95,
+                "top_k": 100,
+                "temperature": 1,
+                "num_return_sequences": 10,
+                "pad_token_id": self.tokenizer.eos_token_id,
+                "num_beams": 2
+                                }
+        return gen_dict
+
+    def PySimpleGUI_main_loop(self):
         while True:
             event, values = self.window.read()
-            self.reroll_text = values["-IN-"] if not values["-IN-"].isspace() else "Hi :)"
+            self.reroll_text = values["-IN-"]
             try:
                
                 if event is None:
@@ -74,43 +105,20 @@ class View:
                     break
                 elif event == 'Input':
                     model_name = values['_FLOATING_LISTBOX_'][0]
+                    self.model.setmodel(model_name)
                     gen_dict = self.mood_selector(values['-MOOD-'][0])
-                    window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
-                    window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True, autoscroll=True)
-                    for i, option in enumerate(magic_answers):
+                    self.window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
+                    self.window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True,
+                                                  autoscroll=True)
+                    for i, option in enumerate(5):
                         magic_answer = self.model.call_and_response(values['-IN-'], gen_dict)
-                        window['-MLINE-'].update(f"{i}: {magic_answer}", append=True, autoscroll=True)
-                        window['-MLINE-'].update("\n", append=True, autoscroll=True)
+                        self.window['-MLINE-'].update(f"{i}: {magic_answer}", append=True, autoscroll=True)
+                        self.window['-MLINE-'].update("\n", append=True, autoscroll=True)
                         self.notice_maker.show_toast(f"Reply number {i} ready", duration=1,icon_path=r"media\notice.ico")
 
-                    window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
-                    window['-MLINE-'].update("\n", append=True, autoscroll=True)
+                    self.window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
+                    self.window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
             except Exception as e:
                 sg.popup_error(f"Oh no an exception occurred: {e}")
                 continue
-
-        def mood_selector(self, choice):
-            if values['-MOOD-'][0] == mood_levels[2]:
-                gen_dict = {
-                    "max_length": 200000,
-                    "do_sample": True,
-                    "top_p": 0.95,
-                    "top_k": 100,
-                    "temperature": 0.7,
-                    "num_return_sequences": 10,
-                    "pad_token_id": tokenizer.eos_token_id,
-                    "num_beams": 2
-                }
-            elif values['-MOOD-'][0] ==  mood_levels[1]:
-                gen_dict = {
-                    "max_length": 200000,
-                    "do_sample": True,
-                    "top_p": 0.95,
-                    "top_k": 100,
-                    "temperature": 1,
-                    "num_return_sequences": 10,
-                    "pad_token_id": tokenizer.eos_token_id,
-                    "num_beams": 2
-                                    }
-            return gen_dict
