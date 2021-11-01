@@ -1,7 +1,6 @@
 # conversation-helper
 
-With the shift to a mobile first life, new friends are often made through apps. Unfortunately these apps tend to freeze potentially
-good conversational partners in the early stage of the conversation. Before the two interlocuteurs find a topic they can riff off. 
+With the shift to a mobile first life, new friends are often made through apps. Unfortunately these apps tend to freeze the air between the two interlocuteurs before they find a topic they can riff off. 
 
 Modern tools can be configured to help. Tools like Tinder chatbots are all too common and leave no room for personality to shine through or unique connections to emerge. A middle ground is needed where ML models can be used to assist the forming of social bonds by helping to overcome common conversational hiccups. Made with <3 by [Mark](https://www.markmusil.com/)
 
