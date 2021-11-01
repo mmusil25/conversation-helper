@@ -9,7 +9,7 @@ Modern tools can be configured to help. Tinder chatbots are all too common and l
 The most common use case for this tool (at this stage) is for early-relationships conversations that are at risk of losing their energy. Take this Bumble BFF match for example. I asked a "How are You" type question and received a similar response. Often, I find that I will fail to reply to messages that lose my interest. The transformer adds the spontaneity needed to keep the conversation going. 
 
 
-![bumble](media\bumble.png)
+![bumble](media/bumble.png)
 
 ## Upcoming Release Improvements
 * Conversation logging
