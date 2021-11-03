@@ -34,7 +34,7 @@ class Model:
                         "num_beams": 2
                     }
         return
-    
+
     def call_and_response(self,text,gen_dict):
         #Encode our text input and add an end of string token to it. 
         inputs_ids = self.tokenizer.encode(text+self.tokenizer.eos_token, return_tensor="pt")
@@ -44,3 +44,9 @@ class Model:
         output = self.tokenizer.decode(self.chat_history_ids_list[0][self.bot_input_ids.shape[-1]:],
                                   skip_special_tokens=True)
         return output
+
+    def bayes_rule(self, p_of_A, p_of_B, p_of_B_given_A):
+                return (p_of_B_given_A*p_of_A)/p_of_B
+
+    def bayesian_sentiment_prediction(self):
+        return
