@@ -21,3 +21,8 @@
 /.vs
 /conv-env
 /second_conv_env
+/Transfer_Learning/Corpus/.idea/
+/Transfer_Learning/Corpus/
+/model.py
+/view.py
+/controller.py

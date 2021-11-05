@@ -25,6 +25,42 @@ mood_levels = {
 }
 
 
+#Classify comments in threads by their conversational token and produce a graph allowing \
+#    for insights into conversational breakdown and conflict. As well as to help understand\
+#    what allows for conversations to "flow".
+
+from transformers import pipeline
+from craigslist_scraper.scraper import scrape_url
+sent_analysis = pipeline("sentiment-analysis")
+
+def analyze_and_print(text):
+    result = sent_analysis(text)[0]
+    print(f"Label:  {result['label']}")
+    print(f"Confidence:  {result['score']}")
+    print()
+
+
+if __name__ == '__main__':
+    myurls = [
+        r'https://washingtondc.craigslist.org/doc/roo/d/washington-furnished-br-in-ne-dc-metro/7402159975.html',
+        r'https://washingtondc.craigslist.org/doc/roo/d/washington-weekly-leases-all-utils/7400286615.html',
+        r'https://washingtondc.craigslist.org/mld/roo/d/mount-rainier-beautifully-renovated/7402935523.html',
+        r'https://washingtondc.craigslist.org/doc/roo/d/washington-master-bed-bath-available-in/7401857012.html',
+        r'https://washingtondc.craigslist.org/nva/roo/d/alexandria-room-available-in-kingstowne/7403525194.html'
+    ]
+
+    for url in myurls:
+        try:
+            data = scrape_url(url)
+            print(data.title)
+            print(data.the_whole_post(200))
+            analyze_and_print(data.the_whole_post())
+        except:
+            analyze_and_print(data.the_whole_post(1000))
+
+
+
+
 def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, chat_history_ids_list = None):
     for step in range(exchanges):
         window['-MLINE-'].update("\nEncoding inputs...\n", append=True, autoscroll=True)
