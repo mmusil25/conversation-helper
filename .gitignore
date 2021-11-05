@@ -26,3 +26,10 @@
 /model.py
 /view.py
 /controller.py
+*.ipynb
+Transfer_Learning
+Transfer_Learning/checkpoint/
+Transfer_Learning/models
+Transfer_Learning/samples
+Train_a_GPT_2_Text_Generating_Model_w_GPU.ipynb
+*.ipynb
