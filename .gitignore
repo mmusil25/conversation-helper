@@ -34,3 +34,7 @@ Transfer_Learning/samples
 Train_a_GPT_2_Text_Generating_Model_w_GPU.ipynb
 *.ipynb
 Train_a_GPT_2_Text_Generating_Model_w_GPU.ipynb
+controller.py
+model.py
+Train_a_GPT_2_Text_Generating_Model_w_GPU.ipynb
+view.py
