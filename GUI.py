@@ -1,5 +1,10 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import yake
+from transformers import pipeline
+from craigslist_scraper.scraper import scrape_url
+import threaded
+import concurrent
 from win10toast import ToastNotifier
 n = ToastNotifier()
 QT = True
@@ -24,39 +29,51 @@ mood_levels = {
     2: "spontaneous, random, assertive",
 }
 
-
-#Classify comments in threads by their conversational token and produce a graph allowing \
-#    for insights into conversational breakdown and conflict. As well as to help understand\
-#    what allows for conversations to "flow".
-
-from transformers import pipeline
-from craigslist_scraper.scraper import scrape_url
 sent_analysis = pipeline("sentiment-analysis")
 
-def analyze_and_print(text):
+@threaded.ThreadPooled
+def analyze_and_print(text, window):
     result = sent_analysis(text)[0]
-    print(f"Label:  {result['label']}")
-    print(f"Confidence:  {result['score']}")
-    print()
+    window['-MLINE-'].update(f"\n\nLabel:  {result['label']}\n", append=True, autoscroll=True)
+    window['-MLINE-'].update(f"Confidence:  {result['score']}\n\n", append=True, autoscroll=True)
+    return
 
+concurrent.futures.wait([analyze_and_print()])
 
-if __name__ == '__main__':
-    myurls = [
-        r'https://washingtondc.craigslist.org/doc/roo/d/washington-furnished-br-in-ne-dc-metro/7402159975.html',
-        r'https://washingtondc.craigslist.org/doc/roo/d/washington-weekly-leases-all-utils/7400286615.html',
-        r'https://washingtondc.craigslist.org/mld/roo/d/mount-rainier-beautifully-renovated/7402935523.html',
-        r'https://washingtondc.craigslist.org/doc/roo/d/washington-master-bed-bath-available-in/7401857012.html',
-        r'https://washingtondc.craigslist.org/nva/roo/d/alexandria-room-available-in-kingstowne/7403525194.html'
-    ]
+def process_urls(url, window=None, model=None, tokenizer=None, gen_dict = None, chat_history_ids_list=None):
+    data = scrape_url(url)
+    window['-MLINE-'].update(data.title + "\n", append=True, autoscroll=True)
+    info = data.the_whole_post()
+    window['-MLINE-'].update(info, append=True, autoscroll=True)
+    analyze_and_print(info, window)
 
-    for url in myurls:
-        try:
-            data = scrape_url(url)
-            print(data.title)
-            print(data.the_whole_post(200))
-            analyze_and_print(data.the_whole_post())
-        except:
-            analyze_and_print(data.the_whole_post(1000))
+    kw_extractor = yake.KeywordExtractor()
+    language = "en"
+    max_ngram_size = 3
+    deduplication_threshold = 0.9
+    numOfKeywords = 20
+    custom_kw_extractor = yake.KeywordExtractor(lan=language, n=max_ngram_size, dedupLim=deduplication_threshold,
+                                                     top=numOfKeywords, features=None)
+    keywords = custom_kw_extractor.extract_keywords(info)
+    my_gpt2_string = ""
+    window['-MLINE-'].update(f"\n Keywords from this post:", append=True, autoscroll=True)
+    for kw in keywords:
+        my_gpt2_string += (kw[0] + " ")
+        window['-MLINE-'].update(f"{kw[0]}", append=True, autoscroll=True)
+
+    chat_history_ids_list, bot_input_ids = magic_machine_learning_function(my_gpt2_string, chat_history_ids_list,
+                                                                           window, model, tokenizer, gen_dict)
+    window['-MLINE-'].update("\nTry saying one of the following to break the ice.\n\n", append=True, autoscroll=True)
+    for i, option in enumerate(chat_history_ids_list):
+        output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
+        window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
+        window['-MLINE-'].update("\n", append=True, autoscroll=True)
+
+    chat_history_ids_list = tokenizer.encode(data.the_whole_post() + tokenizer.eos_token, return_tensors="pt")
+    window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
+    window['-MLINE-'].update("\n", append=True, autoscroll=True)
+    return  chat_history_ids_list
+
 
 
 
@@ -80,11 +97,12 @@ def call_and_response(gen_dict, tokenizer, model, window, text ,exchanges=1, cha
         )
     return chat_history_ids_list, bot_input_ids
 
+@threaded.ThreadPooled
 def magic_machine_learning_function(message, chat_history_ids_list, window, model, tokenizer, gen_dict):
     chat_history_ids_list, bot_input_ids= call_and_response(gen_dict, tokenizer, model, window, message, exchanges=1,
                                                             chat_history_ids_list=chat_history_ids_list)
     return chat_history_ids_list, bot_input_ids
-
+concurrent.futures.wait([magic_machine_learning_function()])
 
 def entry_point():
 
@@ -92,14 +110,14 @@ def entry_point():
     layout = [
             [sg.Multiline(size=(110, 30), font='courier 10', background_color='black', text_color='white', key='-MLINE-')],
             [sg.T('Message> '), sg.Input(key='-IN-', focus=True, do_not_clear=False)],
-            [sg.Button('Input', bind_return_key=True), sg.Button('Cancel')],
+            [sg.Button('Input', bind_return_key=True), sg.Button('Close')],
             [sg.Text('Select a Model:')],
             [sg.Listbox(values=text_list,
                      size=(400, 20 * len(text_list)) if QT else (15, len(text_list)),
                      change_submits=True,
                      bind_return_key=True,
                      auto_size_text=True,
-                     default_values=text_list[0],
+                     default_values=text_list[2],
                      key='_FLOATING_LISTBOX_', enable_events=True)],
             [sg.Text('Select a mood:')],
             [sg.Listbox(values=moods,
@@ -109,8 +127,10 @@ def entry_point():
                     auto_size_text=True,
                     default_values="normal, reserved, friendly",
                     key='-MOOD-', enable_events=True)],
+            [sg.T('Enter a craiglist URL> '), sg.Input(key='-IN_Craig-', focus=True, do_not_clear=False)],
+            [sg.Button('Should I buy?', bind_return_key=False)],
 
-              ]
+    ]
     # Create the Window
     window = sg.Window('Conversation Helper', layout, finalize=True)
     # Create the event loop
@@ -135,16 +155,13 @@ def entry_point():
     while True:
         event, values = window.read()
         try:
-            if event == 'Cancel':
+            if event == 'Close':
                 # User closed the Window or hit the Cancel button
                 break
             elif event is None:
                 break
-            elif event == 'Input':
-
-
+            elif event == 'Input' or 'Should I buy?':
                 model_name = values['_FLOATING_LISTBOX_'][0]
-
 
                 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -173,22 +190,26 @@ def entry_point():
 
                 model = AutoModelForCausalLM.from_pretrained(model_name)
 
-                window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
-                window['-MLINE-'].update("\nRunning magical machine learning box... \n", append=True, autoscroll=True)
-                chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list, window, model,tokenizer, gen_dict)
-                window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True, autoscroll=True)
-                for i, option in enumerate(chat_history_ids_list):
-                    output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
-                    window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
+                # window['-MLINE-'].update(f"\nThey said: {values['-IN-']}\n", append=True, autoscroll=True)
+                # window['-MLINE-'].update("\nRunning magical machine learning box... \n", append=True, autoscroll=True)
+                if event == 'Input':
+                    chat_history_ids_list, bot_input_ids = magic_machine_learning_function(values['-IN-'], chat_history_ids_list, window, model,tokenizer, gen_dict)
+                    window['-MLINE-'].update("\nTry saying one of the following.\n\n", append=True, autoscroll=True)
+                    for i, option in enumerate(chat_history_ids_list):
+                        output = tokenizer.decode(chat_history_ids_list[i][bot_input_ids.shape[-1]:], skip_special_tokens=True)
+                        window['-MLINE-'].update(f"{i}: {output}", append=True, autoscroll=True)
+                        window['-MLINE-'].update("\n", append=True, autoscroll=True)
+
+                    chat_history_ids_list = tokenizer.encode(values['-IN-'] + tokenizer.eos_token, return_tensors="pt")
+                    window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
                     window['-MLINE-'].update("\n", append=True, autoscroll=True)
 
-                chat_history_ids_list = tokenizer.encode(values['-IN-'] + tokenizer.eos_token, return_tensors="pt")
-                window['-MLINE-'].update(f"\n\nEnter their reply\n", append=True, autoscroll=True)
-                window['-MLINE-'].update("\n", append=True, autoscroll=True)
-
-                n.show_toast("Replies ready", "Now you know what to say.", duration=10,
-                             icon_path=r"media\notice.ico")
-
+                    n.show_toast("Replies ready", "Now you know what to say.", duration=10,
+                                 icon_path=r"media\notice.ico")
+                elif event == 'Should I buy?':
+                    chat_history_ids_list = process_urls(values['-IN_Craig-'], model=model, tokenizer=tokenizer,
+                                                       gen_dict = gen_dict,
+                                 window=window, chat_history_ids_list=chat_history_ids_list)
 
 
 
